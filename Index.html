@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Laju Tumbuh: Misi Penjelajah Usia - Game Balapan IPA Kelas IX</title>
+
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandPrimary: '#2D5A8C',
+            brandSecondary: '#F4C430',
+            brandSuccess: '#2ECC71',
+            brandDanger: '#E74C3C',
+            darkGlass: 'rgba(30, 41, 59, 0.95)',
+          },
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #1e293b;
+    }
+    .font-poppins { font-family: 'Poppins', sans-serif; }
+    
+    /* Text 3D Outline Effect */
+    .text-3d {
+      text-shadow: 
+        0 2px 0 #1e3a8a,
+        0 4px 0 #1e3a8a,
+        0 6px 0 #1e3a8a,
+        0 8px 15px rgba(0,0,0,0.4);
+    }
+
+    /* Glassmorphism Styling */
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Custom Animations */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .animate-shake { animation: shake 0.4s ease-in-out; }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(244, 196, 48, 0.5); }
+      50% { box-shadow: 0 0 30px rgba(244, 196, 48, 0.9); }
+    }
+    .pulse-glow { animation: pulseGlow 2s infinite; }
+
+    /* Custom Scrollbar for Modal */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center text-white relative bg-slate-900">
+
+  <!-- ==================== TOP NAVIGATION / AUDIO CONTROLS ==================== -->
+  <div class="fixed top-3 right-3 z-50 flex items-center gap-2">
+    <button id="btnAudioToggle" onclick="toggleAudio()" class="bg-slate-800/80 hover:bg-slate-700 text-white p-2.5 rounded-full border border-slate-600 backdrop-blur transition hover:scale-105 active:scale-95 shadow-lg flex items-center justify-center">
+      <span id="audioIcon" class="text-xl">🔊</span>
+    </button>
+  </div>
+
+  <!-- ==================== SCREEN 1: START SCREEN (50-50 SPLIT) ==================== -->
+  <div id="startScreen" class="w-full min-h-screen flex flex-col justify-between p-4 md:p-8 max-w-7xl mx-auto z-10">
+    
+    <!-- MAIN CONTENT GRID (SPLIT 50-50) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center my-auto py-6">
+      
+      <!-- KIRI: BRANDING & ILUSTRASI -->
+      <div class="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5">
+        <div class="inline-flex items-center gap-2 bg-yellow-500/20 text-brandSecondary px-4 py-1.5 rounded-full border border-yellow-500/40 font-bold text-xs uppercase tracking-wider">
+          🏎️ Game Edukasi IPA Kelas IX - Kurikulum Merdeka
+        </div>
+        
+        <h1 class="text-4xl md:text-6xl font-black font-poppins text-white text-3d tracking-tight leading-tight">
+          LAJU TUMBUH
+        </h1>
+        <p class="text-lg md:text-xl font-bold text-yellow-400 font-poppins tracking-wide">
+          Misi Penjelajah Usia & Perkembangan Manusia
+        </p>
+
+        <!-- SVG Car Character Illustration (~250px) -->
+        <div class="relative w-56 h-56 md:w-64 md:h-64 my-2 flex items-center justify-center filter drop-shadow-2xl hover:scale-105 transition duration-300">
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <linearGradient id="carGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2D5A8C"/>
+                <stop offset="100%" stop-color="#1d3557"/>
+              </linearGradient>
+              <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#F4C430"/>
+                <stop offset="100%" stop-color="#e6a100"/>
+              </linearGradient>
+            </defs>
+            <!-- Track Circle Base -->
+            <circle cx="100" cy="100" r="90" fill="#1e293b" stroke="#334155" stroke-width="6"/>
+            <path d="M 30,100 A 70,70 0 0,1 170,100" fill="none" stroke="#F4C430" stroke-width="8" stroke-dasharray="10 8"/>
+            
+            <!-- Cartoon Car -->
+            <g transform="translate(35, 55)">
+              <!-- Shadow -->
+              <ellipse cx="65" cy="95" rx="55" ry="12" fill="rgba(0,0,0,0.4)"/>
+              <!-- Car Body -->
+              <path d="M 15,70 Q 20,40 45,35 L 85,35 Q 110,40 115,70 Q 120,80 10,80 Z" fill="url(#carGrad)" stroke="#38bdf8" stroke-width="3"/>
+              <!-- Roof / Cabin -->
+              <path d="M 35,38 Q 50,15 70,15 Q 90,15 95,38 Z" fill="#38bdf8" opacity="0.85"/>
+              <!-- Eyes on Windshield (Cartoon) -->
+              <circle cx="55" cy="28" r="5" fill="#ffffff"/>
+              <circle cx="57" cy="28" r="2" fill="#000000"/>
+              <circle cx="75" cy="28" r="5" fill="#ffffff"/>
+              <circle cx="77" cy="28" r="2" fill="#000000"/>
+              <!-- Wheels -->
+              <circle cx="35" cy="80" r="16" fill="#0f172a" stroke="#94a3b8" stroke-width="4"/>
+              <circle cx="35" cy="80" r="6" fill="#f8fafc"/>
+              <circle cx="95" cy="80" r="16" fill="#0f172a" stroke="#94a3b8" stroke-width="4"/>
+              <circle cx="95" cy="80" r="6" fill="#f8fafc"/>
+              <!-- Headlight Glow -->
+              <path d="M 115,65 L 135,55 L 135,75 Z" fill="url(#yellowGrad)" opacity="0.8"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 3 Tombol Kecil: BELAJAR, JUARA, SETTING -->
+        <div class="flex flex-wrap justify-center lg:justify-start gap-3 w-full">
+          <button onclick="openModal('modalBelajar')" class="flex-1 min-w-[100px] bg-slate-800/90 hover:bg-slate-700 text-yellow-400 font-poppins text-xs font-bold uppercase py-2.5 px-4 rounded-lg border border-yellow-500/30 transition hover:scale-105 active:scale-95 shadow-md flex items-center justify-center gap-1.5">
+            📖 Ringkasan
+          </button>
+          <button onclick="openModal('modalJuara')" class="flex-1 min-w-[100px] bg-slate-800/90 hover:bg-slate-700 text-emerald-400 font-poppins text-xs font-bold uppercase py-2.5 px-4 rounded-lg border border-emerald-500/30 transition hover:scale-105 active:scale-95 shadow-md flex items-center justify-center gap-1.5">
+            🏆 Juara
+          </button>
+          <button onclick="openModal('modalPetunjuk')" class="flex-1 min-w-[100px] bg-slate-800/90 hover:bg-slate-700 text-sky-400 font-poppins text-xs font-bold uppercase py-2.5 px-4 rounded-lg border border-sky-500/30 transition hover:scale-105 active:scale-95 shadow-md flex items-center justify-center gap-1.5">
+            ❓ Petunjuk
+          </button>
+        </div>
+      </div>
+
+      <!-- KANAN: PANEL SETTINGS (GLASSMORPHISM) -->
+      <div class="glass-panel p-6 md:p-8 rounded-2xl flex flex-col space-y-5 border border-slate-700/60 shadow-2xl">
+        <h2 class="text-xl font-bold font-poppins text-white border-b border-slate-700 pb-3 flex items-center gap-2">
+          ⚙️ Pengaturan Misi Balap
+        </h2>
+
+        <!-- Dropdown Jenjang -->
+        <div>
+          <label class="block text-xs font-bold uppercase font-poppins text-slate-300 mb-2">Jenjang Pendidikan</label>
+          <select id="selectJenjang" class="w-full bg-slate-900/90 text-white border border-slate-600 rounded-lg p-3 font-medium focus:ring-2 focus:ring-brandSecondary outline-none transition">
+            <option value="SMP" selected>SMP Kelas IX (Fase D - IPA)</option>
+            <option value="SD">SD Kelas VI (Latihan Dasar)</option>
+            <option value="SMA">SMA Kelas X (Pengayaan Bio)</option>
+          </select>
+        </div>
+
+        <!-- Tombol Durasi Game -->
+        <div>
+          <label class="block text-xs font-bold uppercase font-poppins text-slate-300 mb-2">Durasi Permainan</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="dur3" onclick="setDurasi(3)" class="dur-btn bg-brandPrimary text-white font-poppins font-bold py-2.5 rounded-lg border border-sky-400/30 transition hover:scale-105">
+              ⏱️ 3 Menit
+            </button>
+            <button id="dur5" onclick="setDurasi(5)" class="dur-btn bg-slate-800 text-slate-400 font-poppins font-bold py-2.5 rounded-lg border border-slate-700 transition hover:scale-105">
+              ⏱️ 5 Menit
+            </button>
+          </div>
+        </div>
+
+        <!-- Pilihan Mode Permainan -->
+        <div>
+          <label class="block text-xs font-bold uppercase font-poppins text-slate-300 mb-2">Mode Permainan</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button id="modeSolo" onclick="setMode('Petualang')" class="mode-btn bg-brandSecondary text-slate-900 font-poppins font-bold text-xs py-2.5 rounded-lg transition hover:scale-105 shadow">
+              🚀 Petualang
+            </button>
+            <button id="modeDuel" onclick="setMode('Duel')" class="mode-btn bg-slate-800 text-slate-400 font-poppins font-bold text-xs py-2.5 rounded-lg transition hover:scale-105">
+              ⚔️ Duel Bot
+            </button>
+            <button id="modeTeam" onclick="setMode('Team')" class="mode-btn bg-slate-800 text-slate-400 font-poppins font-bold text-xs py-2.5 rounded-lg transition hover:scale-105">
+              👥 Tim Misi
+            </button>
+          </div>
+        </div>
+
+        <!-- Nama Pemain Input -->
+        <div>
+          <label class="block text-xs font-bold uppercase font-poppins text-slate-300 mb-2">Nama Pengemudi Misi</label>
+          <input type="text" id="playerName" value="Penjelajah Muda" placeholder="Masukkan namamu..." class="w-full bg-slate-900/90 text-white border border-slate-600 rounded-lg p-3 font-medium focus:ring-2 focus:ring-brandSuccess outline-none transition">
+        </div>
+
+        <!-- Tombol Besar MULAI MISI -->
+        <button onclick="startGame()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-poppins font-black text-lg uppercase py-4 rounded-xl shadow-lg transition hover:scale-105 active:scale-95 pulse-glow flex items-center justify-center gap-2">
+          <span>🎮</span> MULAI MISI SEKARANG
+        </button>
+      </div>
+
+    </div>
+
+    <!-- FOOTER CREDIT -->
+    <footer class="glass-panel py-3 px-6 rounded-xl text-center text-xs text-slate-400 border border-slate-800">
+      <p>Media Pembelajaran Berbasis Gamifikasi & Deep Learning • <span class="text-yellow-400 font-semibold">Kurikulum Merdeka IPA Kelas IX</span> © 2026</p>
+    </footer>
+  </div>
+
+  <!-- ==================== SCREEN 2: GAMEPLAY SCREEN ==================== -->
+  <div id="gameplayScreen" class="hidden w-full h-screen flex-col relative overflow-hidden bg-slate-950">
+    
+    <!-- HUD / HEADER STATS -->
+    <div class="absolute top-0 left-0 right-0 z-20 p-3 md:p-4 flex justify-between items-center bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
+      
+      <!-- Kiri: Waktu & Level -->
+      <div class="flex items-center gap-3 pointer-events-auto">
+        <div class="bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
+          <span class="text-lg">⏳</span>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Waktu</div>
+            <div id="hudTimer" class="font-poppins font-extrabold text-sm md:text-base text-yellow-400">03:00</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
+          <span class="text-lg">🚩</span>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Level</div>
+            <div id="hudLevel" class="font-poppins font-extrabold text-sm md:text-base text-sky-400">1 / 3</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kanan: Skor, Combo, Nyawa -->
+      <div class="flex items-center gap-3 pointer-events-auto">
+        <div id="comboBadge" class="hidden bg-amber-500 text-slate-950 px-2.5 py-1 rounded-lg font-poppins font-black text-xs animate-bounce shadow">
+          COMBO 2x 🔥
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
+          <span class="text-lg">⭐</span>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Skor</div>
+            <div id="hudScore" class="font-poppins font-extrabold text-sm md:text-base text-emerald-400">0</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
+          <span class="text-lg">❤️</span>
+          <div id="hudLives" class="font-poppins font-extrabold text-sm md:text-base text-rose-500 tracking-widest">
+            ❤️❤️❤️
+          </div>
+        </div>
+
+        <button onclick="pauseGame()" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-xl border border-slate-600 text-xs font-bold font-poppins">
+          ⏸️
+        </button>
+      </div>
+
+    </div>
+
+    <!-- PROGRESS BAR LEVEL -->
+    <div class="absolute top-16 left-4 right-4 z-20 pointer-events-none max-w-xl mx-auto">
+      <div class="w-full bg-slate-800/80 rounded-full h-2.5 border border-slate-700 overflow-hidden">
+        <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- CANVAS BALAPAN GAME Engine -->
+    <div class="w-full h-full relative">
+      <canvas id="gameCanvas" class="w-full h-full block bg-slate-900"></canvas>
+    </div>
+
+    <!-- TOUCH / ON-SCREEN CONTROLS FOR MOBILE/TABLET -->
+    <div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end pointer-events-none md:hidden">
+      <div class="flex gap-2 pointer-events-auto">
+        <button id="btnLeft" class="w-14 h-14 bg-slate-800/80 active:bg-sky-600 text-white font-bold rounded-2xl border border-slate-600 flex items-center justify-center text-2xl shadow-lg active:scale-95">
+          ◀
+        </button>
+        <button id="btnRight" class="w-14 h-14 bg-slate-800/80 active:bg-sky-600 text-white font-bold rounded-2xl border border-slate-600 flex items-center justify-center text-2xl shadow-lg active:scale-95">
+          ▶
+        </button>
+      </div>
+      <div class="pointer-events-auto">
+        <button id="btnBoost" class="w-16 h-16 bg-amber-500 active:bg-amber-400 text-slate-950 font-black rounded-2xl border border-amber-300 flex items-center justify-center text-xl shadow-lg active:scale-95">
+          🚀 BOOST
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== MODAL 1: CHECKPOINT QUIZ MODAL ==================== -->
+  <div id="modalQuiz" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 border border-slate-700 shadow-2xl relative animate-fade-in flex flex-col space-y-4">
+      
+      <!-- Quiz Header -->
+      <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="bg-yellow-500 text-slate-950 font-poppins font-black text-xs px-2.5 py-1 rounded-md">CHECKPOINT MISI</span>
+          <span id="quizTopicTag" class="text-xs text-sky-300 font-medium">Fase Pertumbuhan Manusia</span>
+        </div>
+        <div id="quizTimerTag" class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/30">
+          ⏱️ Bonus Cepat: <span id="quizSec">15</span>s
+        </div>
+      </div>
+
+      <!-- Question Text -->
+      <div class="py-2">
+        <h3 id="quizQuestion" class="text-base md:text-lg font-bold font-poppins text-white leading-relaxed">
+          Pertanyaan kuis kontekstual akan ditampilkan di sini...
+        </h3>
+      </div>
+
+      <!-- Options Container (4 Choices) -->
+      <div id="quizOptions" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Options generated dynamically -->
+      </div>
+
+      <!-- Feedback Area (Hidden by default) -->
+      <div id="quizFeedback" class="hidden p-3.5 rounded-xl text-xs md:text-sm font-medium flex items-start gap-2 border">
+        <span id="feedbackIcon" class="text-lg">💡</span>
+        <div id="feedbackText" class="text-slate-200">
+          Feedback edukasi penjelasan materi...
+        </div>
+      </div>
+
+      <!-- Next Button -->
+      <div class="flex justify-end pt-2">
+        <button id="btnNextQuiz" onclick="continueRaceAfterQuiz()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-poppins font-bold text-sm px-6 py-2.5 rounded-lg shadow transition hover:scale-105">
+          Lanjut Balapan 🏎️
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: PAUSE MODAL ==================== -->
+  <div id="modalPause" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 text-center space-y-5 border border-slate-700">
+      <h3 class="text-2xl font-black font-poppins text-white">⏸️ Permainan Deda</h3>
+      <p class="text-xs text-slate-300">Istirahat sejenak sebelum melanjutkan misi balapmu!</p>
+      
+      <div class="flex flex-col gap-3">
+        <button onclick="resumeGame()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-poppins font-bold py-3 rounded-xl shadow transition hover:scale-105">
+          ▶️ Lanjutkan Permainan
+        </button>
+        <button onclick="restartGame()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-poppins font-bold py-3 rounded-xl border border-slate-600 shadow transition hover:scale-105">
+          🔄 Ulangi Level
+        </button>
+        <button onclick="quitToMenu()" class="w-full bg-rose-600/80 hover:bg-rose-600 text-white font-poppins font-bold py-3 rounded-xl border border-rose-500/50 shadow transition hover:scale-105">
+          🏠 Kembali ke Menu Utama
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: GAME OVER / WIN SCREEN ==================== -->
+  <div id="endScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-lg overflow-y-auto">
+    <div class="glass-panel w-full max-w-xl rounded-2xl p-6 md:p-8 space-y-6 border border-slate-700 my-auto">
+      
+      <!-- Banner Header -->
+      <div class="text-center space-y-2">
+        <div id="endBadge" class="inline-block bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-4 py-1 rounded-full font-bold text-xs uppercase font-poppins">
+          🎉 MISI SELESAI!
+        </div>
+        <h2 id="endTitle" class="text-3xl md:text-4xl font-black font-poppins text-white">
+          Luar Biasa, Penjelajah!
+        </h2>
+        <p id="endSubtitle" class="text-xs md:text-sm text-slate-300">
+          Kamu telah berhasil menguasai materi Pertumbuhan & Perkembangan Manusia!
+        </p>
+      </div>
+
+      <!-- Bintang Rating -->
+      <div id="starsContainer" class="flex justify-center gap-3 text-4xl">
+        <span class="text-yellow-400">⭐</span>
+        <span class="text-yellow-400">⭐</span>
+        <span class="text-yellow-400">⭐</span>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-3 gap-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center">
+        <div>
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Skor Akhir</div>
+          <div id="endScore" class="font-poppins font-extrabold text-lg md:text-xl text-yellow-400">120</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Benar / Tepat</div>
+          <div id="endCorrect" class="font-poppins font-extrabold text-lg md:text-xl text-emerald-400">10 / 10</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Sisa Waktu</div>
+          <div id="endTime" class="font-poppins font-extrabold text-lg md:text-xl text-sky-400">01:12</div>
+        </div>
+      </div>
+
+      <!-- Refleksi Mindful Deep Learning Box -->
+      <div class="bg-sky-950/40 border border-sky-800/60 p-4 rounded-xl space-y-2 text-left">
+        <div class="flex items-center gap-2 text-sky-400 font-bold font-poppins text-xs uppercase">
+          🧠 Refleksi Pembelajaran (Mindful & Meaningful)
+        </div>
+        <p id="endReflection" class="text-xs text-slate-300 leading-relaxed">
+          Pertumbuhan manusia bersifat kuantitatif (dapat diukur seperti tinggi & berat badan), sedangkan perkembangan bersifat kualitatif (pematangan fungsi organ, emosi, dan kecerdasan). Rawatlah tubuhmu pada masa pubertas dengan gizi seimbang dan pola hidup sehat!
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <button onclick="startGame()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-poppins font-bold py-3 rounded-xl shadow transition hover:scale-105 text-sm uppercase">
+          🔄 Main Lagi
+        </button>
+        <button onclick="quitToMenu()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-poppins font-bold py-3 rounded-xl border border-slate-600 shadow transition hover:scale-105 text-sm uppercase">
+          🏠 Menu Utama
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODALS LAINNYA: BELAJAR, JUARA, PETUNJUK ==================== -->
+  
+  <!-- Modal Belajar / Ringkasan Materi IPA Kelas IX -->
+  <div id="modalBelajar" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 border border-slate-700 space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="text-lg font-bold font-poppins text-yellow-400 flex items-center gap-2">
+          📖 Rangkuman: Pertumbuhan & Perkembangan Manusia
+        </h3>
+        <button onclick="closeModal('modalBelajar')" class="text-slate-400 hover:text-white font-bold text-xl">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs md:text-sm text-slate-200 leading-relaxed">
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-sky-400 font-poppins mb-1">1. Beda Pertumbuhan vs Perkembangan</h4>
+          <p><strong>Pertumbuhan:</strong> Proses pertambahan ukuran, volume, dan jumlah sel yang bersifat <em>irreversible</em> (tidak dapat kembali) dan kuantitatif (dapat diukur dengan angka, misal tinggi cm, berat kg).</p>
+          <p class="mt-1"><strong>Perkembangan:</strong> Proses menuju kedewasaan dan pematangan fungsi organ tubuh/emosi yang bersifat kualitatif (misal kemampuan berjalan, berpikir kritis).</p>
+        </div>
+
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-emerald-400 font-poppins mb-1">2. Tahapan Fase Hidup Manusia</h4>
+          <ul class="list-disc list-inside space-y-1">
+            <li><strong>Fase Prenatal:</strong> Perkembangan di dalam kandungan (zigot → embrio → janin).</li>
+            <li><strong>Bayi & Balita:</strong> Laju pertumbuhan sangat cepat, koordinasi motorik berkembang.</li>
+            <li><strong>Anak-anak:</strong> Sosialisasi dan perkembangan kognitif pesat.</li>
+            <li><strong>Remaja (Pubertas):</strong> Pematangan organ reproduksi, perubahan ciri kelamin primer & sekunder.</li>
+            <li><strong>Dewasa & Lansia:</strong> Pertumbuhan fisik berhenti, pematangan emosi stabil, penuaan sel pada lansia.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-amber-400 font-poppins mb-1">3. Ciri Pubertas Remaja</h4>
+          <p>Digerakkan oleh hormon <strong>Testosteron</strong> (laki-laki) dan <strong>Estrogen/Progesteron</strong> (perempuan).</p>
+          <p class="mt-1"><em>Perempuan:</em> Menstruasi (primer), dada membesar, panggul melebar (sekunder).</p>
+          <p><em>Laki-laki:</em> Mimpi basah (primer), suara membesar, tumbuh jakun & rambut halus (sekunder).</p>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeModal('modalBelajar')" class="w-full bg-brandPrimary hover:bg-sky-600 text-white font-poppins font-bold py-2.5 rounded-xl transition">
+          Paham, Siap Balapan! 👍
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Leaderboard / Juara -->
+  <div id="modalJuara" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-slate-700 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="text-lg font-bold font-poppins text-emerald-400 flex items-center gap-2">
+          🏆 Papan Juara Penjelajah
+        </h3>
+        <button onclick="closeModal('modalJuara')" class="text-slate-400 hover:text-white font-bold text-xl">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-yellow-400">#1</span>
+            <span class="font-bold text-slate-200">Ahmad Bio Pro</span>
+          </div>
+          <span class="font-poppins font-extrabold text-yellow-400">150 Pts</span>
+        </div>
+        <div class="flex justify-between items-center bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-slate-400">#2</span>
+            <span class="font-bold text-slate-200">Siti Champion</span>
+          </div>
+          <span class="font-poppins font-extrabold text-emerald-400">135 Pts</span>
+        </div>
+        <div class="flex justify-between items-center bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="font-black text-amber-600">#3</span>
+            <span class="font-bold text-slate-200">Budi Racer</span>
+          </div>
+          <span class="font-poppins font-extrabold text-emerald-400">120 Pts</span>
+        </div>
+      </div>
+
+      <button onclick="closeModal('modalJuara')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-poppins font-bold py-2.5 rounded-xl transition">
+        Tutup
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Petunjuk Permainan -->
+  <div id="modalPetunjuk" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-slate-700 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="text-lg font-bold font-poppins text-sky-400 flex items-center gap-2">
+          ❓ Petunjuk Permainan
+        </h3>
+        <button onclick="closeModal('modalPetunjuk')" class="text-slate-400 hover:text-white font-bold text-xl">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <p>1. <strong>Kemudi Mobil:</strong> Gunakan Panah Kiri/Kanan keyboard, Tombol Layar, atau Geser Layar (Touch) untuk mengarahkan mobil.</p>
+        <p>2. <strong>Ambil Koin & Boost:</strong> Kumpulkan koin emas di lintasan balap untuk skor ekstra dan boost kecepatan.</p>
+        <p>3. <strong>Checkpoint Kuis:</strong> Saat melewati garis merah Checkpoint, jawab soal kontekstual tentang Pertumbuhan & Perkembangan Manusia.</p>
+        <p>4. <strong>Skor & Combo:</strong> Jawab benar secara berturut-turut untuk mengaktifkan Multiplier Combo 2x dan bonus kecepatan!</p>
+      </div>
+
+      <button onclick="closeModal('modalPetunjuk')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-poppins font-bold py-2.5 rounded-xl transition">
+        Mengerti
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT GAME LOGIC & WEB AUDIO ENGINE ==================== -->
+  <script>
+    /* ==========================================================================
+       1. WEB AUDIO SYNTHESIZER (Tanpa File Eksternal)
+       ========================================================================== */
+    let audioCtx = null;
+    let isAudioMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleAudio() {
+      isAudioMuted = !isAudioMuted;
+      document.getElementById('audioIcon').innerText = isAudioMuted ? '🔇' : '🔊';
+    }
+
+    function playTone(freq, duration, type = 'sine', volume = 0.1) {
+      if (isAudioMuted) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.log('Audio Context error:', e);
+      }
+    }
+
+    // Sound FX FX
+    function sfxClick() { playTone(600, 0.08, 'sine', 0.1); }
+    function sfxCorrect() {
+      playTone(523.25, 0.1, 'triangle', 0.15); // C5
+      setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.15), 100); // E5
+      setTimeout(() => playTone(783.99, 0.25, 'triangle', 0.2), 200); // G5
+    }
+    function sfxWrong() {
+      playTone(220, 0.15, 'sawtooth', 0.2);
+      setTimeout(() => playTone(180, 0.25, 'sawtooth', 0.2), 150);
+    }
+    function sfxBoost() { playTone(440, 0.3, 'sine', 0.1); }
+    function sfxFanfare() {
+      const notes = [523, 659, 783, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 0.2, 'triangle', 0.2), idx * 120);
+      });
+    }
+
+    /* ==========================================================================
+       2. DATA BANK SOAL (IPA KELAS IX - KURIKULUM MERDEKA)
+       ========================================================================== */
+    const questionBank = [
+      // LEVEL 1: Konsep Dasar Pertumbuhan & Perkembangan
+      {
+        level: 1,
+        topic: "Definisi Pertumbuhan",
+        question: "Saat bayi berusia 6 bulan, berat badannya 7 kg. Pada usia 1 tahun, beratnya menjadi 10 kg. Perubahan berat badan ini dinamakan...",
+        options: [
+          "Pertumbuhan, karena dapat diukur secara kuantitatif",
+          "Perkembangan, karena hanya organ dalam yang berubah",
+          "Diferensiasi, karena sel bertambah fungsi",
+          "Regenerasi, karena mengganti sel lama"
+        ],
+        answer: 0,
+        explanation: "Pertumbuhan adalah pertambahan ukuran, massa, dan jumlah sel yang bersifat kuantitatif (dapat diukur angka)."
+      },
+      {
+        level: 1,
+        topic: "Perkembangan Manusia",
+        question: "Budi yang berusia 1,5 tahun kini mulai belajar berjalan dan menyebutkan kata 'Mama'. Perubahan kemampuan ini tergolong...",
+        options: [
+          "Pertumbuhan fisik semata",
+          "Perkembangan pematangan fungsi organ & emosi",
+          "Proses pubertas dini",
+          "Metamorfosis kognitif"
+        ],
+        answer: 1,
+        explanation: "Perkembangan bersifat kualitatif, yaitu proses menuju kedewasaan dan pematangan fungsi organ serta motorik."
+      },
+      {
+        level: 1,
+        topic: "Fase Hidup Manusia",
+        question: "Tahapan perkembangan manusia yang ditandai dengan laju pertumbuhan tercepat kedua setelah masa bayi adalah...",
+        options: [
+          "Masa Lansia",
+          "Masa Dewasa",
+          "Masa Remaja (Pubertas)",
+          "Masa Anak-anak awal"
+        ],
+        answer: 2,
+        explanation: "Masa remaja (pubertas) mengalami lonjakan pertumbuhan (growth spurt) yang pesat secara fisik dan seksual."
+      },
+
+      // LEVEL 2: Pubertas & Perubahan Hormonal
+      {
+        level: 2,
+        topic: "Ciri Pubertas Laki-Laki",
+        question: "Manakah di bawah ini yang merupakan ciri kelamin PRIMER pada remaja laki-laki saat memasuki masa pubertas?",
+        options: [
+          "Suara menjadi lebih berat dan membesar",
+          "Tumbuhnya jakun di leher",
+          "Terjadinya mimpi basah (produksi sperma)",
+          "Dada menjadi lebih bidang"
+        ],
+        answer: 2,
+        explanation: "Ciri primer berhubungan langsung dengan organ reproduksi (mimpi basah/produksi sel sperma oleh testis)."
+      },
+      {
+        level: 2,
+        topic: "Ciri Pubertas Perempuan",
+        question: "Siti mengalami menstruasi pertama kali (menarche) di usia 13 tahun. Organ yang memproduksi sel telur (ovum) pada wanita adalah...",
+        options: [
+          "Ovarium",
+          "Uterus",
+          "Tuba Falopi",
+          "Vagina"
+        ],
+        answer: 0,
+        explanation: "Ovarium adalah indung telur yang memproduksi sel telur serta hormon Estrogen dan Progesteron."
+      },
+      {
+        level: 2,
+        topic: "Hormon Pertumbuhan",
+        question: "Hormon utama yang memicu perkembangan ciri sekunder pada remaja laki-laki seperti tumbuhnya kumis dan dada bidang adalah...",
+        options: [
+          "Estrogen",
+          "Testosteron",
+          "Progesteron",
+          "Insulin"
+        ],
+        answer: 1,
+        explanation: "Testosteron dihasilkan oleh testis dan memicu perkembangan fisik sekunder pada laki-laki."
+      },
+      {
+        level: 2,
+        topic: "Kesehatan Reproduksi",
+        question: "Salah satu langkah menjaga kesehatan organ reproduksi pada masa pubertas adalah...",
+        options: [
+          "Mengganti pakaian dalam minimal 2 kali sehari dengan bahan menyerap keringat",
+          "Mencuci wajah dengan sabun setiap jam",
+          "Membatasi minum air putih agar tidak sering buang air",
+          "Mengkonsumsi makanan tinggi gula secara berlebih"
+        ],
+        answer: 0,
+        explanation: "Menjaga kebersihan pakaian dalam sangat penting untuk mencegah kelembaban dan infeksi jamur/bakteri."
+      },
+
+      // LEVEL 3: Gizi, Pola Hidup Sehat & Etika
+      {
+        level: 3,
+        topic: "Gizi & Stunting",
+        question: "Kekurangan gizi kronis pada masa balita yang menyebabkan anak tumbuh lebih pendek dari standar usianya disebut...",
+        options: [
+          "Anemia",
+          "Stunting",
+          "Obesitas",
+          "Riketsia"
+        ],
+        answer: 1,
+        explanation: "Stunting adalah gangguan pertumbuhan anak akibat asupan gizi yang kurang dalam jangka waktu lama (1000 HPK)."
+      },
+      {
+        level: 3,
+        topic: "Fase Lansia",
+        question: "Pada fase lanjut usia (lansia), terjadi penurunan fungsi organ tubuh. Penyakit kerapnya pengeroposan tulang dinamakan...",
+        options: [
+          "Osteoporosis",
+          "Arthritis",
+          "Skoliosis",
+          "Lordosis"
+        ],
+        answer: 0,
+        explanation: "Osteoporosis adalah pengeroposan tulang yang sering dialami lansia karena berkurangnya kalsium dan hormon."
+      },
+      {
+        level: 3,
+        topic: "Pola Hidup Sehat Remaja",
+        question: "Agar otak dan fisik berkembang optimal pada masa remaja, lama waktu tidur malam yang ideal bagi siswa SMP adalah...",
+        options: [
+          "3 - 4 jam per malam",
+          "8 - 10 jam per malam",
+          "12 - 14 jam per malam",
+          "Bebas tanpa jadwal teratur"
+        ],
+        answer: 1,
+        explanation: "Tidur cukup 8-10 jam membantu pelepasan Hormon Pertumbuhan (HGH) secara maksimal pada malam hari."
+      }
+    ];
+
+    /* ==========================================================================
+       3. GAME STATE MANAGEMENT
+       ========================================================================== */
+    let gameState = {
+      score: 0,
+      lives: 3,
+      level: 1,
+      totalLevels: 3,
+      selectedDuration: 3, // Menit
+      timeRemaining: 180, // Detik
+      mode: 'Petualang',
+      isPaused: false,
+      isPlaying: false,
+      correctCount: 0,
+      totalQuestionsAnswered: 0,
+      comboCount: 0,
+      currentQuestionIndex: 0,
+      quizTimerInterval: null,
+      quizSecRemaining: 15
+    };
+
+    let timerInterval = null;
+
+    function setDurasi(min) {
+      sfxClick();
+      gameState.selectedDuration = min;
+      document.getElementById('dur3').className = min === 3 ? 
+        "dur-btn bg-brandPrimary text-white font-poppins font-bold py-2.5 rounded-lg border border-sky-400/30 transition hover:scale-105" : 
+        "dur-btn bg-slate-800 text-slate-400 font-poppins font-bold py-2.5 rounded-lg border border-slate-700 transition hover:scale-105";
+      document.getElementById('dur5').className = min === 5 ? 
+        "dur-btn bg-brandPrimary text-white font-poppins font-bold py-2.5 rounded-lg border border-sky-400/30 transition hover:scale-105" : 
+        "dur-btn bg-slate-800 text-slate-400 font-poppins font-bold py-2.5 rounded-lg border border-slate-700 transition hover:scale-105";
+    }
+
+    function setMode(mode) {
+      sfxClick();
+      gameState.mode = mode;
+      const modes = ['Solo', 'Duel', 'Team'];
+      const modeNames = ['Petualang', 'Duel', 'Team'];
+      
+      modeNames.forEach((m, idx) => {
+        const btn = document.getElementById('mode' + modes[idx]);
+        if (m === mode) {
+          btn.className = "mode-btn bg-brandSecondary text-slate-900 font-poppins font-bold text-xs py-2.5 rounded-lg transition hover:scale-105 shadow";
+        } else {
+          btn.className = "mode-btn bg-slate-800 text-slate-400 font-poppins font-bold text-xs py-2.5 rounded-lg transition hover:scale-105";
+        }
+      });
+    }
+
+    function openModal(id) { sfxClick(); document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { sfxClick(); document.getElementById(id).classList.add('hidden'); }
+
+    /* ==========================================================================
+       4. CANVAS 2D RACING ENGINE (60 FPS)
+       ========================================================================== */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let canvasWidth, canvasHeight;
+    let animFrameId = null;
+
+    // Player Car State
+    let car = {
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 85,
+      speed: 0,
+      maxSpeed: 8,
+      accel: 0.25,
+      dirX: 0,
+      targetX: 0
+    };
+
+    // Track Entities
+    let roadOffset = 0;
+    let coins = [];
+    let checkpoints = [];
+    let obstacles = [];
+    let nextCheckpointDistance = 800; // Jarak spawn checkpoint
+    let distanceTraveled = 0;
+
+    function resizeCanvas() {
+      canvasWidth = canvas.parentElement.clientWidth;
+      canvasHeight = canvas.parentElement.clientHeight;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      car.y = canvasHeight - 130;
+      car.x = canvasWidth / 2 - car.width / 2;
+      car.targetX = car.x;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    function initRaceEngine() {
+      resizeCanvas();
+      roadOffset = 0;
+      distanceTraveled = 0;
+      coins = [];
+      checkpoints = [];
+      obstacles = [];
+      car.speed = 4;
+      
+      // Spawn Initial Coins & Checkpoint
+      spawnCheckpoint();
+      for (let i = 0; i < 5; i++) {
+        spawnCoin(canvasHeight - (i * 200) - 300);
+      }
+    }
+
+    function spawnCoin(yPos) {
+      const roadLeft = canvasWidth * 0.2;
+      const roadRight = canvasWidth * 0.8;
+      const randomX = roadLeft + Math.random() * (roadRight - roadLeft - 30);
+      coins.push({ x: randomX, y: yPos, radius: 14, collected: false });
+    }
+
+    function spawnCheckpoint() {
+      checkpoints.push({
+        y: -100,
+        height: 30,
+        triggered: false,
+        questionIndex: gameState.currentQuestionIndex
+      });
+    }
+
+    function updateRace() {
+      if (!gameState.isPlaying || gameState.isPaused) return;
+
+      // Update Car Movement
+      car.x += car.dirX * 6;
+      const roadLeft = canvasWidth * 0.18;
+      const roadRight = canvasWidth * 0.82 - car.width;
+      car.x = Math.max(roadLeft, Math.min(roadRight, car.x));
+
+      // Road Animation
+      roadOffset += car.speed * 2.5;
+      if (roadOffset > 40) roadOffset = 0;
+      distanceTraveled += car.speed;
+
+      // Update Coins
+      coins.forEach(c => {
+        c.y += car.speed;
+        // Collision detection with car
+        if (!c.collected && Math.abs(c.x - (car.x + car.width/2)) < 30 && Math.abs(c.y - (car.y + car.height/2)) < 40) {
+          c.collected = true;
+          gameState.score += 5;
+          updateHUD();
+          sfxBoost();
+        }
+      });
+
+      // Spawn new coins as needed
+      if (coins.length < 5) {
+        spawnCoin(-50);
+      }
+      coins = coins.filter(c => c.y < canvasHeight + 50 && !c.collected);
+
+      // Update Checkpoints
+      checkpoints.forEach(cp => {
+        cp.y += car.speed;
+        if (!cp.triggered && cp.y >= car.y - 20) {
+          cp.triggered = true;
+          triggerQuizModal();
+        }
+      });
+
+      drawRace();
+      animFrameId = requestAnimationFrame(updateRace);
+    }
+
+    function drawRace() {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      // 1. Draw Grass/Background
+      ctx.fillStyle = '#0d1f2d';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // 2. Draw Road
+      const roadWidth = canvasWidth * 0.64;
+      const roadLeft = canvasWidth * 0.18;
+      
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(roadLeft, 0, roadWidth, canvasHeight);
+
+      // Road Borders (Kerb)
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(roadLeft - 12, 0, 12, canvasHeight);
+      ctx.fillRect(roadLeft + roadWidth, 0, 12, canvasHeight);
+
+      // White Lane Markers
+      ctx.fillStyle = '#f8fafc';
+      for (let y = -40 + roadOffset; y < canvasHeight; y += 50) {
+        ctx.fillRect(canvasWidth / 2 - 4, y, 8, 25);
+      }
+
+      // 3. Draw Coins
+      coins.forEach(c => {
+        if (!c.collected) {
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+          ctx.fillStyle = '#F4C430';
+          ctx.fill();
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          // Coin Symbol
+          ctx.fillStyle = '#78350f';
+          ctx.font = 'bold 12px Poppins';
+          ctx.fillText('★', c.x - 4, c.y + 4);
+        }
+      });
+
+      // 4. Draw Checkpoint Lines
+      checkpoints.forEach(cp => {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+        ctx.fillRect(roadLeft, cp.y, roadWidth, cp.height);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px Poppins';
+        ctx.fillText('🏁 CHECKPOINT MISI SOAL 🏁', canvasWidth/2 - 110, cp.y + 20);
+      });
+
+      // 5. Draw Player Car (Cartoon SVG/Canvas rendering)
+      drawPlayerCar(car.x, car.y);
+    }
+
+    function drawPlayerCar(x, y) {
+      // Car Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.beginPath();
+      ctx.ellipse(x + car.width/2, y + car.height - 5, car.width/2 + 4, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Body
+      ctx.fillStyle = '#2D5A8C';
+      ctx.beginPath();
+      ctx.roundRect(x, y, car.width, car.height, 12);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Windshield
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.roundRect(x + 6, y + 15, car.width - 12, 22, 6);
+      ctx.fill();
+
+      // Wheels
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x - 4, y + 10, 6, 18);
+      ctx.fillRect(x + car.width - 2, y + 10, 6, 18);
+      ctx.fillRect(x - 4, y + car.height - 25, 6, 18);
+      ctx.fillRect(x + car.width - 2, y + car.height - 25, 6, 18);
+
+      // Headlights
+      ctx.fillStyle = '#F4C430';
+      ctx.beginPath();
+      ctx.arc(x + 10, y + 6, 4, 0, Math.PI * 2);
+      ctx.arc(x + car.width - 10, y + 6, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* ==========================================================================
+       5. CONTROLS (KEYBOARD, TOUCH, MOUSE)
+       ========================================================================== */
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') car.dirX = -1;
+      if (e.key === 'ArrowRight' || e.key === 'd') car.dirX = 1;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (['ArrowLeft', 'a', 'ArrowRight', 'd'].includes(e.key)) car.dirX = 0;
+    });
+
+    // Touch Controls
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
+    const btnBoost = document.getElementById('btnBoost');
+
+    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); car.dirX = -1; });
+    btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); car.dirX = 0; });
+    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); car.dirX = 1; });
+    btnRight.addEventListener('touchend', (e) => { e.preventDefault(); car.dirX = 0; });
+    
+    btnBoost.addEventListener('click', () => {
+      sfxBoost();
+      car.speed = 9;
+      setTimeout(() => { car.speed = 4; }, 1500);
+    });
+
+    /* ==========================================================================
+       6. GAME FLOW & QUIZ LOGIC
+       ========================================================================== */
+    function startGame() {
+      initAudio();
+      sfxClick();
+
+      // Reset State
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.level = 1;
+      gameState.timeRemaining = gameState.selectedDuration * 60;
+      gameState.isPlaying = true;
+      gameState.isPaused = false;
+      gameState.correctCount = 0;
+      gameState.totalQuestionsAnswered = 0;
+      gameState.comboCount = 0;
+      gameState.currentQuestionIndex = 0;
+
+      // Switch Screens
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('gameplayScreen').classList.remove('hidden');
+      document.getElementById('gameplayScreen').classList.add('flex');
+
+      updateHUD();
+      initRaceEngine();
+      startGlobalTimer();
+
+      cancelAnimationFrame(animFrameId);
+      updateRace();
+    }
+
+    function startGlobalTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!gameState.isPlaying || gameState.isPaused) return;
+
+        gameState.timeRemaining--;
+        updateHUD();
+
+        if (gameState.timeRemaining <= 0) {
+          endGame(true);
+        }
+      }, 1000);
+    }
+
+    function updateHUD() {
+      // Format Waktu MM:SS
+      const mins = Math.floor(gameState.timeRemaining / 60);
+      const secs = gameState.timeRemaining % 60;
+      document.getElementById('hudTimer').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+      document.getElementById('hudScore').innerText = gameState.score;
+      document.getElementById('hudLevel').innerText = `${gameState.level} / ${gameState.totalLevels}`;
+
+      // Lives Hearts
+      let hearts = '';
+      for (let i = 0; i < gameState.lives; i++) hearts += '❤️';
+      document.getElementById('hudLives').innerText = hearts || '💀';
+
+      // Combo Badge
+      const comboBadge = document.getElementById('comboBadge');
+      if (gameState.comboCount >= 2) {
+        comboBadge.innerText = `COMBO ${gameState.comboCount}x 🔥`;
+        comboBadge.classList.remove('hidden');
+      } else {
+        comboBadge.classList.add('hidden');
+      }
+
+      // Progress Bar
+      const progressPct = (gameState.totalQuestionsAnswered / questionBank.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPct}%`;
+    }
+
+    function triggerQuizModal() {
+      gameState.isPaused = true;
+      
+      const qData = questionBank[gameState.currentQuestionIndex];
+      document.getElementById('quizTopicTag').innerText = qData.topic;
+      document.getElementById('quizQuestion').innerText = qData.question;
+
+      // Options
+      const optionsContainer = document.getElementById('quizOptions');
+      optionsContainer.innerHTML = '';
+
+      qData.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "quiz-opt-btn bg-slate-800/90 hover:bg-slate-700 text-left text-xs md:text-sm text-slate-100 p-3.5 rounded-xl border border-slate-700 transition flex items-start gap-2.5 font-medium";
+        btn.innerHTML = `<span class="bg-slate-700 text-yellow-400 font-poppins font-bold px-2 py-0.5 rounded text-xs">${String.fromCharCode(65 + idx)}</span> <span>${opt}</span>`;
+        btn.onclick = () => handleAnswer(idx);
+        optionsContainer.appendChild(btn);
+      });
+
+      // Reset Feedback
+      document.getElementById('quizFeedback').classList.add('hidden');
+      document.getElementById('btnNextQuiz').classList.add('hidden');
+
+      // Quiz Timer (Bonus Cepat)
+      gameState.quizSecRemaining = 15;
+      document.getElementById('quizSec').innerText = gameState.quizSecRemaining;
+      
+      clearInterval(gameState.quizTimerInterval);
+      gameState.quizTimerInterval = setInterval(() => {
+        gameState.quizSecRemaining--;
+        document.getElementById('quizSec').innerText = gameState.quizSecRemaining;
+        if (gameState.quizSecRemaining <= 0) {
+          clearInterval(gameState.quizTimerInterval);
+        }
+      }, 1000);
+
+      document.getElementById('modalQuiz').classList.remove('hidden');
+    }
+
+    function handleAnswer(selectedIndex) {
+      clearInterval(gameState.quizTimerInterval);
+      const qData = questionBank[gameState.currentQuestionIndex];
+      const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+      // Disable all option buttons
+      buttons.forEach(b => b.disabled = true);
+
+      const isCorrect = selectedIndex === qData.answer;
+
+      if (isCorrect) {
+        sfxCorrect();
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+
+        buttons[selectedIndex].classList.add('bg-emerald-600/80', 'border-emerald-400');
+        
+        // Scoring
+        let points = 10;
+        if (gameState.quizSecRemaining > 5) points += 5; // Bonus cepat
+        if (gameState.comboCount >= 2) points *= 2; // Multiplier
+        
+        gameState.score += points;
+        gameState.correctCount++;
+        gameState.comboCount++;
+
+        showFeedback(true, `Hebat! Jawaban tepat. +${points} Pts! ${qData.explanation}`);
+      } else {
+        sfxWrong();
+        buttons[selectedIndex].classList.add('bg-rose-600/80', 'border-rose-400');
+        buttons[qData.answer].classList.add('bg-emerald-600/80', 'border-emerald-400');
+
+        gameState.lives--;
+        gameState.comboCount = 0;
+
+        showFeedback(false, `Coba lagi! Jawaban yang benar adalah pilihan ${String.fromCharCode(65 + qData.answer)}. ${qData.explanation}`);
+      }
+
+      gameState.totalQuestionsAnswered++;
+      updateHUD();
+
+      document.getElementById('btnNextQuiz').classList.remove('hidden');
+    }
+
+    function showFeedback(isSuccess, message) {
+      const fb = document.getElementById('quizFeedback');
+      fb.classList.remove('hidden');
+      if (isSuccess) {
+        fb.className = "p-3.5 rounded-xl text-xs md:text-sm font-medium flex items-start gap-2 border bg-emerald-950/60 border-emerald-500/50 text-emerald-200";
+        document.getElementById('feedbackIcon').innerText = '🎉';
+      } else {
+        fb.className = "p-3.5 rounded-xl text-xs md:text-sm font-medium flex items-start gap-2 border bg-rose-950/60 border-rose-500/50 text-rose-200";
+        document.getElementById('feedbackIcon').innerText = '💡';
+      }
+      document.getElementById('feedbackText').innerText = message;
+    }
+
+    function continueRaceAfterQuiz() {
+      sfxClick();
+      document.getElementById('modalQuiz').classList.add('hidden');
+
+      // Advance Question
+      gameState.currentQuestionIndex++;
+      
+      // Check Level Up
+      if (gameState.currentQuestionIndex === 3) gameState.level = 2;
+      if (gameState.currentQuestionIndex === 7) gameState.level = 3;
+
+      // Check Game Completion or Game Over
+      if (gameState.lives <= 0) {
+        endGame(false);
+        return;
+      }
+
+      if (gameState.currentQuestionIndex >= questionBank.length) {
+        endGame(true);
+        return;
+      }
+
+      // Resume Race Animation
+      gameState.isPaused = false;
+      spawnCheckpoint();
+      updateRace();
+    }
+
+    function pauseGame() {
+      sfxClick();
+      gameState.isPaused = true;
+      document.getElementById('modalPause').classList.remove('hidden');
+    }
+
+    function resumeGame() {
+      sfxClick();
+      document.getElementById('modalPause').classList.add('hidden');
+      gameState.isPaused = false;
+      updateRace();
+    }
+
+    function restartGame() {
+      sfxClick();
+      document.getElementById('modalPause').classList.add('hidden');
+      startGame();
+    }
+
+    function quitToMenu() {
+      sfxClick();
+      gameState.isPlaying = false;
+      clearInterval(timerInterval);
+      document.getElementById('modalPause').classList.add('hidden');
+      document.getElementById('gameplayScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+    }
+
+    function endGame(isWin) {
+      gameState.isPlaying = false;
+      clearInterval(timerInterval);
+
+      if (isWin) {
+        sfxFanfare();
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+      }
+
+      document.getElementById('endBadge').innerText = isWin ? "🎉 MISI SELESAI!" : "💥 MISI TERHENTI";
+      document.getElementById('endTitle').innerText = isWin ? "Luar Biasa, Penjelajah!" : "Jangan Patah Semangat!";
+      document.getElementById('endSubtitle').innerText = isWin ? 
+        "Kamu telah berhasil menguasai materi Pertumbuhan & Perkembangan Manusia!" : 
+        "Terus berlatih untuk menguasai materi IPA Kelas IX!";
+
+      document.getElementById('endScore').innerText = gameState.score;
+      document.getElementById('endCorrect').innerText = `${gameState.correctCount} / ${questionBank.length}`;
+      
+      const mins = Math.floor(gameState.timeRemaining / 60);
+      const secs = gameState.timeRemaining % 60;
+      document.getElementById('endTime').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+      // Bintang Rating
+      const starsDiv = document.getElementById('starsContainer');
+      const pct = (gameState.score / (questionBank.length * 15)) * 100;
+      if (pct >= 80) {
+        starsDiv.innerHTML = '<span class="text-yellow-400">⭐</span><span class="text-yellow-400">⭐</span><span class="text-yellow-400">⭐</span>';
+      } else if (pct >= 50) {
+        starsDiv.innerHTML = '<span class="text-yellow-400">⭐</span><span class="text-yellow-400">⭐</span><span class="text-slate-600">⭐</span>';
+      } else {
+        starsDiv.innerHTML = '<span class="text-yellow-400">⭐</span><span class="text-slate-600">⭐</span><span class="text-slate-600">⭐</span>';
+      }
+
+      document.getElementById('endScreen').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
